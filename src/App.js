@@ -1,13 +1,35 @@
 import React from 'react'
 import firebase, { auth, provider } from './firebase'
-import { Alert, Container, Button, Row, Col } from 'reactstrap'
+import {
+	Alert as BootstrapAlert,
+	Container as BootstrapContainer,
+	Button,
+	Row as BootstrapRow,
+	Col,
+} from 'reactstrap'
+import styled from 'styled-components'
 import { Navbar } from './components/navbar'
 import { UserProfile } from './components/user-profile'
 
 import './App.css'
 
+const Container = styled(BootstrapContainer)`
+	height: 80vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+`
+
+const Row = styled(BootstrapRow)`
+	padding-top: 2rem;
+`
+
+const Alert = styled(BootstrapAlert)`
+	padding: 2rem;
+`
+
 function App() {
-	const [user, setUser] = React.useState(null)
+	const [user, setUser] = React.useState()
 	const [visible, setVisible] = React.useState(false)
 	const [alertText, setAlertText] = React.useState('')
 
@@ -42,7 +64,7 @@ function App() {
 	const logoutUser = () => {
 		auth.signOut().then(() => {
 			setAlertText('You have been successfully logged out.')
-			setUser(null)
+			setUser()
 			setVisible(true)
 			setTimeout(() => {
 				setVisible(false)
@@ -50,20 +72,12 @@ function App() {
 		})
 	}
 
-	let signInButton = (
-		<Button block color='success' onClick={loginUser}>
-			Sign In
-		</Button>
-	)
-	let userImg
-	if (user) {
+	let signInButton
+	if (user === undefined) {
 		signInButton = (
-			<Button block color='success' onClick={logoutUser}>
-				Sign Out
+			<Button block color='success' onClick={loginUser}>
+				Sign In
 			</Button>
-		)
-		userImg = (
-			<img style={{ borderRadius: '50%' }} width='200px' src={user.photo} />
 		)
 	}
 
@@ -74,8 +88,8 @@ function App() {
 			<Navbar user={user} />
 			<Alert isOpen={visible}>{alertText}</Alert>
 			<Container>
-				{user ? <UserProfile user={user} /> : undefined}
-				<Row style={{ paddingTop: '2rem' }}>
+				{user ? <UserProfile user={user} logout={logoutUser} /> : undefined}
+				<Row>
 					<Col md={{ size: 4, offset: 4 }}>{signInButton}</Col>
 				</Row>
 			</Container>
